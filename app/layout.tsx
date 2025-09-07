@@ -4,6 +4,10 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
+// ✅ import Header & Footer
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
+
 export const metadata: Metadata = {
   title: "ToolKit - Essential Tools for Digital Creators",
   description:
@@ -28,7 +32,16 @@ html {
 }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body className="flex flex-col min-h-screen">
+        {/* ✅ Global Header */}
+        <Header />
+
+        {/* ✅ Page Content */}
+        <main className="flex-1">{children}</main>
+
+        {/* ✅ Global Footer */}
+        <Footer />
+      </body>
     </html>
   )
 }

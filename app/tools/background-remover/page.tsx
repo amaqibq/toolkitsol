@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Upload, Loader2, Download, ImageIcon, Sparkles, ArrowRight } from "lucide-react"
@@ -22,7 +21,7 @@ export default function BackgroundRemover() {
   const [progress, setProgress] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
 
-  // 🔥 API Call function
+  // 🔥 API Call
   const processImage = useCallback(async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append("file", file)
@@ -37,10 +36,10 @@ export default function BackgroundRemover() {
     }
 
     const blob = await response.blob()
-    return URL.createObjectURL(blob) // usable in <img src="..." />
+    return URL.createObjectURL(blob)
   }, [])
 
-  // 📂 Handle File Upload
+  // 📂 File Upload
   const handleFileSelect = useCallback(
     async (files: File[]) => {
       if (files.length === 0) return
@@ -79,14 +78,14 @@ export default function BackgroundRemover() {
     [processImage],
   )
 
-  // 📥 Handle file input
+  // 📥 File input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       handleFileSelect(Array.from(e.target.files))
     }
   }
 
-  // 💾 Download processed image
+  // 💾 Download processed
   const handleDownload = () => {
     if (!image?.processed) return
     const a = document.createElement("a")
@@ -97,33 +96,8 @@ export default function BackgroundRemover() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-            >
-              ToolkitSol
-            </Link>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/image-converter" className="text-slate-600 hover:text-blue-600 transition-colors">
-                Image Converter
-              </Link>
-              <Link href="/qr-generator" className="text-slate-600 hover:text-blue-600 transition-colors">
-                QR Generator
-              </Link>
-              <Link href="/content-counter" className="text-slate-600 hover:text-blue-600 transition-colors">
-                Content Counter
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-5xl mx-auto px-6 py-12">
-        {/* Hero Section */}
+        {/* Hero */}
         <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -141,8 +115,7 @@ export default function BackgroundRemover() {
           >
             Remove Backgrounds
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              {" "}
-              Instantly
+              {" "} Instantly
             </span>
           </motion.h1>
           <motion.p
@@ -219,22 +192,10 @@ export default function BackgroundRemover() {
             <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/20">
               <h3 className="text-lg font-semibold text-slate-900 mb-4">✨ Features</h3>
               <ul className="space-y-3 text-sm text-slate-600">
-                <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  AI-powered precision
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Instant processing
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  High-quality results
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                  Multiple formats
-                </li>
+                <li className="flex items-center gap-2"><div className="w-2 h-2 bg-green-500 rounded-full"></div>AI-powered precision</li>
+                <li className="flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 rounded-full"></div>Instant processing</li>
+                <li className="flex items-center gap-2"><div className="w-2 h-2 bg-purple-500 rounded-full"></div>High-quality results</li>
+                <li className="flex items-center gap-2"><div className="w-2 h-2 bg-pink-500 rounded-full"></div>Multiple formats</li>
               </ul>
             </div>
 
@@ -247,26 +208,25 @@ export default function BackgroundRemover() {
           </motion.div>
         </div>
 
+        {/* Before & After */}
         {image && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
             <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
               <h2 className="text-2xl font-semibold text-slate-900 mb-8 text-center">Before & After Comparison</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Original */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-slate-700">Original Image</h3>
                     <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Before</span>
                   </div>
                   <div className="relative overflow-hidden rounded-2xl shadow-lg">
-                    <img
-                      src={image.original || "/placeholder.svg"}
-                      alt="Original"
-                      className="w-full h-auto object-cover"
-                    />
+                    <img src={image.original || "/placeholder.svg"} alt="Original" className="w-full h-auto object-cover" />
                   </div>
                 </div>
 
+                {/* Processed */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-slate-700">Background Removed</h3>
@@ -274,18 +234,12 @@ export default function BackgroundRemover() {
                   </div>
                   <div className="relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-slate-100 to-slate-200">
                     {isProcessing ? (
-                      <div className="flex items-center justify-center h-64 bg-gradient-to-br from-slate-100 to-slate-200">
-                        <div className="text-center">
-                          <Loader2 className="w-12 h-12 animate-spin text-slate-500 mx-auto mb-4" />
-                          <p className="text-slate-600 font-medium">Processing your image...</p>
-                        </div>
+                      <div className="flex items-center justify-center h-64">
+                        <Loader2 className="w-12 h-12 animate-spin text-slate-500 mx-auto mb-4" />
+                        <p className="text-slate-600 font-medium">Processing your image...</p>
                       </div>
                     ) : image.processed ? (
-                      <img
-                        src={image.processed || "/placeholder.svg"}
-                        alt="Processed"
-                        className="w-full h-auto object-cover"
-                      />
+                      <img src={image.processed || "/placeholder.svg"} alt="Processed" className="w-full h-auto object-cover" />
                     ) : (
                       <div className="flex items-center justify-center h-64">
                         <p className="text-slate-500">Processing failed. Please try again.</p>
@@ -320,6 +274,7 @@ export default function BackgroundRemover() {
           </motion.div>
         )}
 
+        {/* More Tools */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -336,21 +291,21 @@ export default function BackgroundRemover() {
               {
                 title: "Image Converter",
                 description: "Convert between PNG, JPG, WebP formats",
-                href: "/image-converter",
+                href: "/tools/image-converter",
                 gradient: "from-blue-500 to-cyan-500",
                 icon: "🔄",
               },
               {
                 title: "QR Generator",
                 description: "Create custom QR codes instantly",
-                href: "/qr-generator",
+                href: "/tools/qr-generator",
                 gradient: "from-purple-500 to-pink-500",
                 icon: "📱",
               },
               {
                 title: "Content Counter",
                 description: "Analyze text length and readability",
-                href: "/content-counter",
+                href: "/tools/content-counter",
                 gradient: "from-green-500 to-teal-500",
                 icon: "📝",
               },
@@ -362,9 +317,7 @@ export default function BackgroundRemover() {
                   transition={{ delay: 0.7 + index * 0.1 }}
                   className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group cursor-pointer"
                 >
-                  <div
-                    className={`w-12 h-12 bg-gradient-to-r ${tool.gradient} rounded-xl flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform duration-300`}
-                  >
+                  <div className={`w-12 h-12 bg-gradient-to-r ${tool.gradient} rounded-xl flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     {tool.icon}
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">

@@ -93,14 +93,12 @@ export default function QRGeneratorPage() {
 
   const sampleTexts = [
     "https://example.com",
-    "Hello, World!",
-    "Contact: john@example.com",
     "WiFi:T:WPA;S:MyNetwork;P:password123;;",
   ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
+      {/* <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link
@@ -122,7 +120,7 @@ export default function QRGeneratorPage() {
             </nav>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
@@ -307,7 +305,7 @@ export default function QRGeneratorPage() {
             </motion.div>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
               <Card className="bg-white/70 backdrop-blur-sm border border-white/20 shadow-xl rounded-3xl">
                 <CardHeader className="pb-4">
@@ -391,21 +389,21 @@ export default function QRGeneratorPage() {
               {
                 title: "Image Converter",
                 description: "Convert between PNG, JPG, WebP formats",
-                href: "/image-converter",
+                href: "/tools/image-converter",
                 gradient: "from-blue-500 to-cyan-500",
                 icon: "🔄",
               },
               {
                 title: "Content Counter",
                 description: "Analyze text length and readability",
-                href: "/content-counter",
+                href: "/tools/content-counter",
                 gradient: "from-green-500 to-teal-500",
                 icon: "📝",
               },
               {
                 title: "Background Remover",
                 description: "Remove backgrounds from images instantly",
-                href: "/background-remover",
+                href: "/tools/background-remover",
                 gradient: "from-purple-500 to-pink-500",
                 icon: "✂️",
               },

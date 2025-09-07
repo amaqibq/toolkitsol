@@ -12,7 +12,7 @@ export default function HomePage() {
       title: "Image Converter",
       description: "Convert images between PNG, JPG, WebP and other formats with optional background color changes",
       icon: ImageIcon,
-      href: "/image-converter",
+      href: "/tools/image-converter",
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-50/50 to-cyan-50/50",
     },
@@ -20,7 +20,7 @@ export default function HomePage() {
       title: "QR Code Generator",
       description: "Generate QR codes instantly from text or links with download options",
       icon: QrCodeIcon,
-      href: "/qr-generator",
+      href: "/tools/qr-generator",
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50/50 to-pink-50/50",
     },
@@ -28,7 +28,7 @@ export default function HomePage() {
       title: "Content Counter",
       description: "Count words and characters in your text with future AI rewriting capabilities",
       icon: FileTextIcon,
-      href: "/content-counter",
+      href: "/tools/content-counter",
       gradient: "from-green-500 to-teal-500",
       bgGradient: "from-green-50/50 to-teal-50/50",
     },
@@ -36,7 +36,7 @@ export default function HomePage() {
       title: "Background Remover",
       description: "Remove backgrounds from images automatically with format conversion options",
       icon: ScissorsIcon,
-      href: "/background-remover",
+      href: "/tools/background-remover",
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50/50 to-pink-50/50",
     },
@@ -44,43 +44,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                ToolkitSol
-              </h1>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="#tools"
-                className="text-slate-600 hover:text-blue-600 transition-colors duration-200 font-medium"
-              >
-                Tools
-              </Link>
-              <Link
-                href="#about"
-                className="text-slate-600 hover:text-blue-600 transition-colors duration-200 font-medium"
-              >
-                About
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-slate-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 bg-transparent"
-              >
-                Get Started
-              </Button>
-            </div>
-          </nav>
-        </div>
-      </header>
-
-      <section className="py-24 px-4">
+      {/* Hero Section */}
+      <section className="py-20 px-4">
         <div className="container mx-auto text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -122,17 +87,11 @@ export default function HomePage() {
             >
               Explore Tools
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="text-lg px-8 py-6 border-slate-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 bg-transparent"
-            >
-              Learn More
-            </Button>
           </motion.div>
         </div>
       </section>
 
+      {/* Tools Section */}
       <section id="tools" className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <motion.div
@@ -193,92 +152,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 border-t border-slate-700 py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg">T</span>
-                </div>
-                <h3 className="text-xl font-bold text-white">ToolKit</h3>
-              </div>
-              <p className="text-slate-300 mb-4 max-w-md leading-relaxed">
-                Essential tools for digital creators. Convert, generate, count, and edit with ease.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-6">Tools</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/image-converter"
-                    className="text-slate-300 hover:text-blue-400 transition-colors duration-200"
-                  >
-                    Image Converter
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/qr-generator"
-                    className="text-slate-300 hover:text-blue-400 transition-colors duration-200"
-                  >
-                    QR Generator
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/content-counter"
-                    className="text-slate-300 hover:text-blue-400 transition-colors duration-200"
-                  >
-                    Content Counter
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/background-remover"
-                    className="text-slate-300 hover:text-blue-400 transition-colors duration-200"
-                  >
-                    Background Remover
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-6">Quick Links</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="#about" className="text-slate-300 hover:text-blue-400 transition-colors duration-200">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#contact" className="text-slate-300 hover:text-blue-400 transition-colors duration-200">
-                    Contact
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#privacy" className="text-slate-300 hover:text-blue-400 transition-colors duration-200">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#terms" className="text-slate-300 hover:text-blue-400 transition-colors duration-200">
-                    Terms
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-700 mt-12 pt-8 text-center">
-            <p className="text-slate-400">© 2024 ToolKit. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
