@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { QrCodeIcon, Download, Copy, CheckCircle, Sparkles, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import QRCode from "qrcode"
 
 interface QROptions {
   size: number
@@ -40,41 +41,17 @@ export default function QRGeneratorPage() {
     setIsGenerating(true)
 
     try {
-      const canvas = canvasRef.current
-      if (!canvas) return
-
-      const ctx = canvas.getContext("2d")!
-      canvas.width = options.size
-      canvas.height = options.size
-
-      ctx.fillStyle = options.backgroundColor
-      ctx.fillRect(0, 0, options.size, options.size)
-
-      ctx.fillStyle = options.foregroundColor
-      const moduleSize = options.size / 25
-
-      const hash = text.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-
-      for (let row = 0; row < 25; row++) {
-        for (let col = 0; col < 25; col++) {
-          if ((row < 7 && col < 7) || (row < 7 && col > 17) || (row > 17 && col < 7)) {
-            if (row === 0 || row === 6 || col === 0 || col === 6 || (row >= 2 && row <= 4 && col >= 2 && col <= 4)) {
-              ctx.fillRect(col * moduleSize, row * moduleSize, moduleSize, moduleSize)
-            }
-          } else if ((hash + row * 25 + col) % 3 === 0) {
-            ctx.fillRect(col * moduleSize, row * moduleSize, moduleSize, moduleSize)
-          }
-        }
-      }
-
-      for (let i = 8; i < 17; i++) {
-        if (i % 2 === 0) {
-          ctx.fillRect(i * moduleSize, 6 * moduleSize, moduleSize, moduleSize)
-          ctx.fillRect(6 * moduleSize, i * moduleSize, moduleSize, moduleSize)
-        }
-      }
-
-      const dataURL = canvas.toDataURL("image/png")
+      // Use the qrcode library to generate proper QR code
+      const dataURL = await QRCode.toDataURL(text, {
+        width: options.size,
+        margin: 1,
+        color: {
+          dark: options.foregroundColor,
+          light: options.backgroundColor
+        },
+        errorCorrectionLevel: options.errorCorrectionLevel
+      })
+      
       setQrDataURL(dataURL)
     } catch (error) {
       console.error("Error generating QR code:", error)
