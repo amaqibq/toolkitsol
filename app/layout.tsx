@@ -39,6 +39,17 @@ html {
         {/* ✅ Page Content */}
         <main className="flex-1">{children}</main>
 
+          {/* ✅ google analytic code */}
+       
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HPE465JWH6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HPE465JWH6');
+</script>
+
         {/* ✅ Global Footer */}
         <Footer />
       </body>
