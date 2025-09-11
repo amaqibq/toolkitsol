@@ -31,15 +31,7 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
-      </head>
-      <body className="flex flex-col min-h-screen">
-        {/* ✅ Global Header */}
-        <Header />
-
-        {/* ✅ Page Content */}
-        <main className="flex-1">{children}</main>
-
-          {/* ✅ google analytic code */}
+        {/* ✅ google analytic code */}
        
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HPE465JWH6"></script>
 <script>
@@ -49,6 +41,14 @@ html {
 
   gtag('config', 'G-HPE465JWH6');
 </script>
+      </head>
+      <body className="flex flex-col min-h-screen">
+        {/* ✅ Global Header */}
+        <Header />
+
+        {/* ✅ Page Content */}
+        <main className="flex-1">{children}</main>
+
 
         {/* ✅ Global Footer */}
         <Footer />
