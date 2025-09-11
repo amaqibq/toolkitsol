@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Upload, ImageIcon, CheckCircle, X, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import UPNG from "upng-js"
 
 declare global {
   interface Window {
@@ -111,6 +112,7 @@ export default function ImageConverterPage() {
     onDrop(files)
   }
 
+  // PNG compression with upng-js, JPEG/WEBP via canvas
   const convertImage = async (imageFile: ImageFile): Promise<Blob> => {
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas")
@@ -121,21 +123,36 @@ export default function ImageConverterPage() {
         canvas.width = img.width
         canvas.height = img.height
 
-        // Fill background if converting to JPG or if background color is specified
-        if (conversionOptions.format === "jpeg" || conversionOptions.backgroundColor) {
+        if (
+          conversionOptions.format === "jpeg" ||
+          conversionOptions.format === "webp" ||
+          conversionOptions.backgroundColor
+        ) {
           ctx.fillStyle = conversionOptions.backgroundColor || "#ffffff"
           ctx.fillRect(0, 0, canvas.width, canvas.height)
         }
-
         ctx.drawImage(img, 0, 0)
 
-        canvas.toBlob(
-          (blob) => {
-            resolve(blob!)
-          },
-          `image/${conversionOptions.format}`,
-          conversionOptions.quality / 100,
-        )
+        if (conversionOptions.format === "png") {
+          // PNG compression using upng-js
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+          // Quality: 0 (lowest) to 1 (highest)
+          const quality = Math.max(0, Math.min(1, (conversionOptions.quality - 10) / 90))
+          // Colors: 1 (worst) to 256 (best)
+          const colors = Math.round(8 + quality * (256 - 8))
+          const rgba = new Uint8Array(imageData.data.buffer)
+          const pngArrayBuffer = UPNG.encode([rgba.buffer], canvas.width, canvas.height, colors)
+          const blob = new Blob([pngArrayBuffer], { type: "image/png" })
+          resolve(blob)
+        } else {
+          canvas.toBlob(
+            (blob) => {
+              resolve(blob!)
+            },
+            `image/${conversionOptions.format}`,
+            conversionOptions.quality / 100,
+          )
+        }
       }
 
       img.src = imageFile.preview
@@ -148,21 +165,16 @@ export default function ImageConverterPage() {
 
     const convertedImages: { blob: Blob; filename: string }[] = []
 
-    // Convert all images
     for (let i = 0; i < images.length; i++) {
       const imageFile = images[i]
       const convertedBlob = await convertImage(imageFile)
       const filename = `${imageFile.name.split(".")[0]}.${conversionOptions.format}`
 
       convertedImages.push({ blob: convertedBlob, filename })
-
-      // Update progress
       setProgress(((i + 1) / images.length) * 100)
     }
 
-    // Handle download based on number of images
     if (convertedImages.length === 1) {
-      // Single image: Direct download
       const { blob, filename } = convertedImages[0]
       const url = URL.createObjectURL(blob)
       const link = document.createElement("a")
@@ -173,19 +185,12 @@ export default function ImageConverterPage() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } else {
-      // Multiple images: ZIP download
       await loadJSZip()
       const zip = new window.JSZip()
-
-      // Add all converted images to ZIP
       convertedImages.forEach(({ blob, filename }) => {
         zip.file(filename, blob)
       })
-
-      // Generate ZIP file
       const zipBlob = await zip.generateAsync({ type: "blob" })
-
-      // Download ZIP file with website name prefix
       const url = URL.createObjectURL(zipBlob)
       const link = document.createElement("a")
       link.href = url
@@ -217,30 +222,6 @@ export default function ImageConverterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-            >
-              ToolkitSol
-            </Link>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/qr-generator" className="text-slate-600 hover:text-blue-600 transition-colors">
-                QR Generator
-              </Link>
-              <Link href="/content-counter" className="text-slate-600 hover:text-blue-600 transition-colors">
-                Content Counter
-              </Link>
-              <Link href="/background-remover" className="text-slate-600 hover:text-blue-600 transition-colors">
-                Background Remover
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header> */}
-
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <motion.div
