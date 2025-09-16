@@ -4,7 +4,6 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
-// ✅ import Header & Footer
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import Script from "next/script"
@@ -14,44 +13,44 @@ export const metadata: Metadata = {
   description:
     "Convert images, generate QR codes, count content, and remove backgrounds with our powerful suite of digital tools.",
   generator: "v0.app",
-  keywords: "image converter, QR code generator, content counter, background remover, digital tools",
+  keywords:
+    "image converter, QR code generator, content counter, background remover, digital tools",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
+          html {
+            font-family: ${GeistSans.style.fontFamily};
+            --font-sans: ${GeistSans.variable};
+            --font-mono: ${GeistMono.variable};
+          }
         `}</style>
-        {/* ✅ google analytic code */}
-       
-<Script async src="https://www.googletagmanager.com/gtag/js?id=G-HPE465JWH6"></Script>
-<Script>
-  {`window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-HPE465JWH6');`}
-</Script>
+        {/* ✅ Google Analytics */}
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-HPE465JWH6"
+        />
+        <Script id="ga-setup" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-HPE465JWH6');`}
+        </Script>
       </head>
-      <body className="flex flex-col min-h-screen">
-        {/* ✅ Global Header */}
-        <Header />UhD3FDwBBxhp
 
-        {/* ✅ Page Content */}
+      <body className="flex flex-col min-h-screen">
+        <Header />
+
         <main className="flex-1">{children}</main>
 
-
-        {/* ✅ Global Footer */}
         <Footer />
       </body>
     </html>
