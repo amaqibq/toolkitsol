@@ -7,6 +7,7 @@ import "./globals.css"
 // ✅ import Header & Footer
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import Script from "next/script"
 
 export const metadata: Metadata = {
   title: "ToolKit - Essential Tools for Digital Creators",
@@ -33,18 +34,18 @@ html {
         `}</style>
         {/* ✅ google analytic code */}
        
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HPE465JWH6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
+<Script async src="https://www.googletagmanager.com/gtag/js?id=G-HPE465JWH6"></Script>
+<Script>
+  {`window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-HPE465JWH6');
-</script>
+  gtag('config', 'G-HPE465JWH6');`}
+</Script>
       </head>
       <body className="flex flex-col min-h-screen">
         {/* ✅ Global Header */}
-        <Header />
+        <Header />UhD3FDwBBxhp
 
         {/* ✅ Page Content */}
         <main className="flex-1">{children}</main>
