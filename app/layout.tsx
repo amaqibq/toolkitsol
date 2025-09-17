@@ -25,6 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* ✅ Google Search Console Verification */}
+        <meta
+          name="google-site-verification"
+          content="doh3DSYrCAl5ptOMmz2iAazRLaztjFHU3KiEF30sITg"
+        />
+
         <style>{`
           html {
             font-family: ${GeistSans.style.fontFamily};
