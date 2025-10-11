@@ -25,9 +25,11 @@ export default function BackgroundRemover() {
   const processImage = useCallback(async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append("file", file)
-
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/remove-bg`, {
       method: "POST",
+        headers: {
+    "x-api-key": process.env.NEXT_PUBLIC_API_KEY as string,
+  },
       body: formData,
     })
 
@@ -337,3 +339,4 @@ export default function BackgroundRemover() {
     </div>
   )
 }
+
