@@ -1,21 +1,28 @@
 import Link from "next/link"
+import Image from "next/image";
 
 export default function Footer() {
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 border-t border-slate-700 py-16 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
-              <h3 className="text-xl font-bold text-white">ToolKit</h3>
-            </div>
-            <p className="text-slate-300 mb-4 max-w-md leading-relaxed">
-              Essential tools for digital creators. Convert, generate, count, and edit with ease.
-            </p>
-          </div>
+<div className="md:col-span-2">
+  <div className="flex items-center space-x-3 mb-6">
+    {/* ✅ Logo */}
+    <Image
+      src="/logo.png"
+      alt="ToolKitSol Logo"
+      width={150}
+      height={45}
+      className="rounded-md"
+    />
+    {/* <h3 className="text-xl font-bold text-white">ToolKitSol</h3> */}
+  </div>
+  <p className="text-slate-300 mb-4 max-w-md leading-relaxed">
+    Essential tools for digital creators. Convert, generate, count, and edit with ease.
+  </p>
+</div>
+
 
           <div>
             <h4 className="font-semibold text-white mb-6">Tools</h4>

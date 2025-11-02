@@ -15,13 +15,38 @@ export const metadata: Metadata = {
   generator: "v0.app",
   keywords:
     "image converter, QR code generator, content counter, background remover, digital tools",
+  metadataBase: new URL("https://www.toolkitsol.com"),
   icons: {
     icon: "/favicon.ico",
     shortcut: "/icon.png",
     apple: "/apple-touch-icon.png",
   },
-  metadataBase: new URL("https://www.toolkitsol.com"),
-}
+  openGraph: {
+    title: "ToolKit - Essential Tools for Digital Creators",
+    description:
+      "Convert images, generate QR codes, count content, and remove backgrounds easily with ToolKit’s all-in-one suite.",
+    url: "https://www.toolkitsol.com",
+    siteName: "ToolKitSol",
+    images: [
+      {
+        url: "/logo.png", // ✅ your logo file from /public
+        width: 800,
+        height: 600,
+        alt: "ToolKitSol Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ToolKit - Essential Tools for Digital Creators",
+    description:
+      "Your go-to digital toolkit for quick conversions, QR generation, and more.",
+    images: ["/logo.png"], // ✅ uses same logo
+  },
+};
+
 
 export default function RootLayout({
   children,
