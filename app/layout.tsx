@@ -15,6 +15,12 @@ export const metadata: Metadata = {
   generator: "v0.app",
   keywords:
     "image converter, QR code generator, content counter, background remover, digital tools",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/icon.png",
+    apple: "/apple-touch-icon.png",
+  },
+  metadataBase: new URL("https://www.toolkitsol.com"),
 }
 
 export default function RootLayout({
