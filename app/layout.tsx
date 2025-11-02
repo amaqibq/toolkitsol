@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "ToolKit - Essential Tools for Digital Creators",
+    title: "ToolKitsol - Essential Tools for Digital Creators",
     description:
       "Convert images, generate QR codes, count content, and remove backgrounds easily with ToolKit’s all-in-one suite.",
     url: "https://www.toolkitsol.com",
