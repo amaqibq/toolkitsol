@@ -4,10 +4,10 @@ import type React from "react"
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Upload, ImageIcon, CheckCircle, X, Sparkles } from "lucide-react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 
 interface ImageFile {
@@ -15,27 +15,15 @@ interface ImageFile {
   preview: string
   name: string
   size: string
-  originalFormat: string
+  originalSize: number
 }
 
-interface ConversionOptions {
-  format: string
-  quality: number
-  backgroundColor?: string
-  useBackgroundColor: boolean
-}
-
-export default function ImageConverterPage() {
+export default function ImageCompressorPage() {
   const [images, setImages] = useState<ImageFile[]>([])
   const [isUploading, setIsUploading] = useState(false)
-  const [isConverting, setIsConverting] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [conversionOptions, setConversionOptions] = useState<ConversionOptions>({
-    format: "png",
-    quality: 90,
-    backgroundColor: "#ffffff",
-    useBackgroundColor: false,
-  })
+  const [quality, setQuality] = useState(75)
   const [isComplete, setIsComplete] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -50,8 +38,9 @@ export default function ImageConverterPage() {
   }
 
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.isArray(files) ? files : files.target.files
-    if (!selectedFiles || selectedFiles.length === 0) return
+    const selectedFiles = Array.isArray(files) ? files : files.target?.files
+    if (!selectedFiles) return
+
     const newImages: ImageFile[] = []
 
     for (const file of selectedFiles) {
@@ -63,7 +52,7 @@ export default function ImageConverterPage() {
           preview,
           name: file.name,
           size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-          originalFormat: file.type.split("/")[1],
+          originalSize: file.size,
         })
         setImages((prevImages) => [...prevImages, ...newImages])
       }
@@ -71,7 +60,7 @@ export default function ImageConverterPage() {
     }
   }
 
-  const convertImage = async (imageFile: ImageFile): Promise<Blob> => {
+  const compressImage = async (imageFile: ImageFile): Promise<Blob> => {
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas")
       const ctx = canvas.getContext("2d")!
@@ -81,22 +70,14 @@ export default function ImageConverterPage() {
       img.onload = () => {
         canvas.width = img.width
         canvas.height = img.height
-
-        const shouldApplyBackground = conversionOptions.format === "jpeg" || conversionOptions.useBackgroundColor
-        if (shouldApplyBackground) {
-          ctx.fillStyle = conversionOptions.backgroundColor || "#ffffff"
-          ctx.fillRect(0, 0, canvas.width, canvas.height)
-        } else {
-          ctx.clearRect(0, 0, canvas.width, canvas.height)
-        }
         ctx.drawImage(img, 0, 0)
 
         canvas.toBlob(
           (blob) => {
             resolve(blob!)
           },
-          `image/${conversionOptions.format}`,
-          conversionOptions.quality / 100,
+          "image/jpeg",
+          quality / 100,
         )
       }
 
@@ -104,32 +85,22 @@ export default function ImageConverterPage() {
     })
   }
 
-  const handleFormatChange = (value: string) => {
-    const useBackground = value === "jpeg"
-    setConversionOptions({
-      ...conversionOptions,
-      format: value,
-      useBackgroundColor: useBackground,
-    })
-  }
-
-  const handleConvert = async () => {
-    setIsConverting(true)
+  const handleCompress = async () => {
+    setIsCompressing(true)
     setProgress(0)
 
-    const convertedImages: { blob: Blob; filename: string }[] = []
+    const compressedImages: { blob: Blob; filename: string }[] = []
 
     for (let i = 0; i < images.length; i++) {
       const imageFile = images[i]
-      const convertedBlob = await convertImage(imageFile)
-      const filename = `${imageFile.name.split(".")[0]}.${conversionOptions.format}`
+      const compressedBlob = await compressImage(imageFile)
+      const filename = `${imageFile.name.split(".")[0]}_compressed.jpg`
 
-      convertedImages.push({ blob: convertedBlob, filename })
+      compressedImages.push({ blob: compressedBlob, filename })
       setProgress(((i + 1) / images.length) * 100)
     }
 
-    if (convertedImages.length === 1) {
-      const { blob, filename } = convertedImages[0]
+    compressedImages.forEach(({ blob, filename }) => {
       const url = URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
@@ -138,24 +109,13 @@ export default function ImageConverterPage() {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    } else {
-      for (const { blob, filename } of convertedImages) {
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = filename
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-      }
-    }
+    })
 
-    setIsConverting(false)
+    setIsCompressing(false)
     setIsComplete(true)
   }
 
-  const resetConverter = () => {
+  const resetCompressor = () => {
     setImages([])
     setIsComplete(false)
     setProgress(0)
@@ -171,16 +131,16 @@ export default function ImageConverterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-red-50">
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
           >
             <Sparkles className="w-4 h-4" />
-            High-Quality Image Conversion
+            Reduce File Size Instantly
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -188,8 +148,11 @@ export default function ImageConverterPage() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 text-balance"
           >
-            Convert Images
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"> Instantly</span>
+            Compress Images
+            <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              {" "}
+              Efficiently
+            </span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -197,7 +160,7 @@ export default function ImageConverterPage() {
             transition={{ delay: 0.2 }}
             className="text-xl text-slate-600 max-w-2xl mx-auto text-pretty"
           >
-            Convert your images between PNG, JPG, WebP and other formats with quality control and transparency support.
+            Reduce image file sizes while maintaining quality. Perfect for web optimization and faster loading times.
           </motion.p>
         </div>
 
@@ -206,14 +169,14 @@ export default function ImageConverterPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20">
                 <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                     <ImageIcon className="w-4 h-4 text-white" />
                   </div>
                   Upload Your Images
                 </h2>
 
                 <motion.div
-                  className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center bg-gradient-to-br from-slate-50/50 to-blue-50/50 hover:from-blue-50/50 hover:to-cyan-50/50 transition-all duration-300 cursor-pointer"
+                  className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center bg-gradient-to-br from-slate-50/50 to-orange-50/50 hover:from-orange-50/50 hover:to-red-50/50 transition-all duration-300 cursor-pointer"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
@@ -221,7 +184,7 @@ export default function ImageConverterPage() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
                       <Upload className="w-8 h-8 text-white" />
                     </div>
                     <div>
@@ -253,114 +216,45 @@ export default function ImageConverterPage() {
                 className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20"
               >
                 <h2 className="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                     <span className="text-white text-sm">⚙️</span>
                   </div>
-                  Conversion Options
+                  Compression Settings
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="space-y-6 mb-8">
                   <div className="space-y-3">
-                    <Label className="text-base font-bold text-slate-800">Output Format</Label>
-                    <Select value={conversionOptions.format} onValueChange={handleFormatChange}>
-                      <SelectTrigger className="h-12 border-2 border-slate-200 focus:border-blue-500 bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur-sm border-slate-200 shadow-xl rounded-xl">
-                        <SelectItem value="png" className="font-semibold hover:bg-blue-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span>PNG (Transparent)</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="jpeg" className="font-semibold hover:bg-blue-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                            <span>JPG (Solid)</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="webp" className="font-semibold hover:bg-blue-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                            <span>WebP (Transparent)</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200">
-                      <p className="text-sm font-bold text-blue-800">
-                        Selected: {conversionOptions.format.toUpperCase()}
-                      </p>
-                      {(conversionOptions.format === "png" || conversionOptions.format === "webp") && (
-                        <p className="text-xs text-blue-700 mt-1">✓ Transparency preserved</p>
-                      )}
-                      {conversionOptions.format === "jpeg" && (
-                        <p className="text-xs text-blue-700 mt-1">Background color will be applied</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-base font-bold text-slate-800">Quality ({conversionOptions.quality}%)</Label>
+                    <Label className="text-base font-bold text-slate-800">Compression Quality ({quality}%)</Label>
                     <Input
                       type="range"
                       min="10"
                       max="100"
-                      value={conversionOptions.quality}
-                      onChange={(e) =>
-                        setConversionOptions({ ...conversionOptions, quality: Number.parseInt(e.target.value) })
-                      }
+                      value={quality}
+                      onChange={(e) => setQuality(Number.parseInt(e.target.value))}
                       className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                     />
-                    <p className="text-xs text-slate-500">Higher quality = larger file size</p>
+                    <div className="flex justify-between text-xs text-slate-500">
+                      <span>Lower quality = smaller file</span>
+                      <span>Higher quality = larger file</span>
+                    </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-base font-bold text-slate-800">Background Color</Label>
-                      {conversionOptions.format !== "jpeg" && (
-                        <span className="text-xs text-slate-500">
-                          {conversionOptions.useBackgroundColor ? "Enabled" : "Optional"}
-                        </span>
-                      )}
-                    </div>
-                    <Input
-                      type="color"
-                      value={conversionOptions.backgroundColor}
-                      onChange={(e) => setConversionOptions({ ...conversionOptions, backgroundColor: e.target.value })}
-                      disabled={conversionOptions.format !== "jpeg" && !conversionOptions.useBackgroundColor}
-                      className="w-full h-12 rounded-xl border-2 border-slate-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-                    {conversionOptions.format !== "jpeg" && (
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!conversionOptions.useBackgroundColor}
-                          onChange={(e) =>
-                            setConversionOptions({
-                              ...conversionOptions,
-                              useBackgroundColor: !e.target.checked,
-                            })
-                          }
-                          className="w-4 h-4 rounded border-slate-300"
-                        />
-                        <span className="text-sm text-slate-600">Preserve Transparency</span>
-                      </label>
-                    )}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200">
+                    <p className="text-sm font-semibold text-orange-800">Recommended: 70-80% for web optimization</p>
                   </div>
                 </div>
 
                 <div className="flex space-x-4">
                   <Button
-                    onClick={handleConvert}
-                    disabled={isConverting}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                    onClick={handleCompress}
+                    disabled={isCompressing}
+                    className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                   >
-                    {isConverting ? "Converting..." : "Start Conversion"}
+                    {isCompressing ? "Compressing..." : "Start Compression"}
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={resetConverter}
+                    onClick={resetCompressor}
                     className="px-8 py-3 rounded-xl border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200 bg-transparent"
                   >
                     Reset
@@ -396,23 +290,21 @@ export default function ImageConverterPage() {
                         </button>
                       </div>
                       <p className="text-xs font-semibold text-slate-700 truncate">{image.name}</p>
-                      <p className="text-xs text-slate-500">
-                        {image.originalFormat.toUpperCase()} • {image.size}
-                      </p>
+                      <p className="text-xs text-slate-500">{image.size}</p>
                     </div>
                   ))}
                 </div>
               </motion.div>
 
-              {isConverting && (
+              {isCompressing && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-200/50"
+                  className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200/50"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-5 h-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-                    <span className="font-medium text-slate-700">Converting images...</span>
+                    <div className="w-5 h-5 animate-spin rounded-full border-2 border-orange-600 border-t-transparent"></div>
+                    <span className="font-medium text-slate-700">Compressing images...</span>
                   </div>
                   <Progress value={progress} className="h-2" />
                   <p className="text-sm text-slate-600 mt-2">{Math.round(progress)}% complete</p>
@@ -432,18 +324,34 @@ export default function ImageConverterPage() {
                   <CheckCircle className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-green-700">Conversion Complete!</h3>
-                  <p className="text-sm text-green-600">Your images have been converted and downloaded successfully.</p>
+                  <h3 className="font-bold text-lg text-green-700">Compression Complete!</h3>
+                  <p className="text-sm text-green-600">
+                    Your images have been compressed and downloaded successfully.
+                  </p>
                 </div>
               </div>
               <Button
-                onClick={resetConverter}
+                onClick={resetCompressor}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
-                Convert More Images
+                Compress More Images
               </Button>
             </motion.div>
           )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-16"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Back to Tools</h2>
+              <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+                View all tools →
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
