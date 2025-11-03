@@ -1,2 +1,16 @@
+# robots.txt for ToolKitSol
+
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Optional: block Next.js internal paths (for safety)
+Disallow: /_next/
+Disallow: /private/
+
+# Sitemap location
+Sitemap: https://www.toolkitsol.com/sitemap.xml
+
+# Crawl-delay helps manage load (optional)
+Crawl-delay: 10
