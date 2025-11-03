@@ -22,25 +22,46 @@ export default function BackgroundRemover() {
   const [isComplete, setIsComplete] = useState(false)
   const [showComparison, setShowComparison] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // 🔥 API Call
+  // 🔥 API Call - Fixed for live environment
   const processImage = useCallback(async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append("file", file)
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/remove-bg`, {
-      method: "POST",
+    
+    // Log for debugging
+    console.log("API URL:", process.env.NEXT_PUBLIC_API_URL)
+    console.log("API Key exists:", !!process.env.NEXT_PUBLIC_API_KEY)
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/remove-bg`, {
+        method: "POST",
         headers: {
-    "x-api-key": process.env.NEXT_PUBLIC_API_KEY as string,
-  },
-      body: formData,
-    })
+          "x-api-key": process.env.NEXT_PUBLIC_API_KEY as string,
+        },
+        body: formData,
+      })
 
-    if (!response.ok) {
-      throw new Error("Failed to process image")
+      console.log("Response status:", response.status)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("API Error:", errorText)
+        throw new Error(`Failed to process image: ${response.status} ${response.statusText}`)
+      }
+
+      const blob = await response.blob()
+      console.log("Blob received:", blob.size, "bytes")
+      
+      if (blob.size === 0) {
+        throw new Error("Empty response from server")
+      }
+      
+      return URL.createObjectURL(blob)
+    } catch (err) {
+      console.error("Process image error:", err)
+      throw err
     }
-
-    const blob = await response.blob()
-    return URL.createObjectURL(blob)
   }, [])
 
   // 📂 File Upload
@@ -48,36 +69,55 @@ export default function BackgroundRemover() {
     async (files: File[]) => {
       if (files.length === 0) return
       const file = files[0]
-      if (!file.type.startsWith("image/")) return
+      
+      // Validate file type and size
+      if (!file.type.startsWith("image/")) {
+        setError("Please upload an image file (PNG, JPG, WebP)")
+        return
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        setError("File size too large. Please upload images smaller than 10MB")
+        return
+      }
 
+      setError(null)
       setIsUploading(true)
       setProgress(20)
 
       const reader = new FileReader()
       reader.onload = async () => {
-        const originalData = reader.result as string
-        setImage({
-          original: originalData,
-          processed: "",
-          fileName: file.name,
-        })
-
-        setIsUploading(false)
-        setIsProcessing(true)
-        setProgress(50)
-
         try {
+          const originalData = reader.result as string
+          setImage({
+            original: originalData,
+            processed: "",
+            fileName: file.name,
+          })
+
+          setIsUploading(false)
+          setIsProcessing(true)
+          setProgress(50)
+
           const processedUrl = await processImage(file)
           setImage((prev) => (prev ? { ...prev, processed: processedUrl } : null))
           setIsComplete(true)
           setShowComparison(true)
+          setProgress(100)
         } catch (err) {
           console.error("Error while processing:", err)
+          setError(err instanceof Error ? err.message : "Failed to remove background. Please try again.")
+        } finally {
+          setIsProcessing(false)
+          setIsUploading(false)
         }
-
-        setIsProcessing(false)
-        setProgress(100)
       }
+      
+      reader.onerror = () => {
+        setError("Failed to read file. Please try again.")
+        setIsUploading(false)
+      }
+      
       reader.readAsDataURL(file)
     },
     [processImage],
@@ -85,7 +125,7 @@ export default function BackgroundRemover() {
 
   // 📥 File input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (e.target.files && e.target.files.length > 0) {
       handleFileSelect(Array.from(e.target.files))
     }
   }
@@ -96,7 +136,9 @@ export default function BackgroundRemover() {
     const a = document.createElement("a")
     a.href = image.processed
     a.download = `${image.fileName.replace(/\.[^/.]+$/, "")}-no-bg.png`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
   }
 
   // 🆕 New Image
@@ -107,6 +149,7 @@ export default function BackgroundRemover() {
     setProgress(0)
     setIsUploading(false)
     setIsProcessing(false)
+    setError(null)
   }
 
   // 🖱️ Drag and drop
@@ -132,6 +175,37 @@ export default function BackgroundRemover() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Error Message */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4"
+          >
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <p className="text-red-700 text-sm font-medium">{error}</p>
+                <button
+                  onClick={() => setError(null)}
+                  className="ml-auto text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Full Page Drop Area - Only shown when no processing/comparison */}
       <AnimatePresence>
         {showMainPage && (
@@ -193,7 +267,7 @@ export default function BackgroundRemover() {
                   transition={{ delay: 0.3 }}
                   className="w-full max-w-4xl"
                 >
-                  <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-12 shadow-2xl border border-white/20">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-12 shadow-2xl border border-white/20 relative">
                     <div className="text-center">
                       <input 
                         type="file" 
@@ -444,7 +518,7 @@ export default function BackgroundRemover() {
                           <img
                             src={image.original || "/placeholder.svg"}
                             alt="Original"
-                            className="w-full h-auto object-cover"
+                            className="w-full h-auto object-cover max-h-96"
                           />
                         </div>
                       </div>
@@ -455,7 +529,7 @@ export default function BackgroundRemover() {
                           <h3 className="text-lg font-medium text-slate-700">Background Removed</h3>
                           <span className="text-sm text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">After</span>
                         </div>
-                        <div className="relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-slate-100 to-slate-200">
+                        <div className="relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-slate-100 to-slate-200 min-h-96">
                           {isProcessing ? (
                             <div className="flex flex-col items-center justify-center h-64 space-y-4">
                               <div className="relative">
@@ -469,7 +543,7 @@ export default function BackgroundRemover() {
                               <img
                                 src={image.processed || "/placeholder.svg"}
                                 alt="Processed"
-                                className="w-full h-auto object-cover"
+                                className="w-full h-auto object-cover max-h-96"
                               />
                             </div>
                           ) : (
