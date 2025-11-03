@@ -23,15 +23,15 @@ export default function BackgroundRemover() {
   const [showComparison, setShowComparison] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
 
-  // 🔥 API Call configuration - DO NOT CHANGE
+  // 🔥 API Call
   const processImage = useCallback(async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append("file", file)
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/remove-bg`, {
       method: "POST",
-      headers: {
-        "x-api-key": process.env.NEXT_PUBLIC_API_KEY as string,
-      },
+        headers: {
+    "x-api-key": process.env.NEXT_PUBLIC_API_KEY as string,
+  },
       body: formData,
     })
 
