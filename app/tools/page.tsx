@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Upload, ImageIcon, CheckCircle, X, Sparkles } from "lucide-react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 
 interface ImageFile {
@@ -52,33 +53,29 @@ export default function ImageConverterPage() {
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.isArray(files) ? files : files.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
-    
-    const fileArray = Array.from(selectedFiles)
-    
-    // Process all files and update state once
-    const processFiles = async () => {
-      const imagePromises = fileArray.map((file) => {
-        return new Promise<ImageFile>((resolve) => {
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            const preview = e.target?.result as string
-            resolve({
-              file,
-              preview,
-              name: file.name,
-              size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-              originalFormat: file.type.split("/")[1] || "unknown",
-            })
-          }
-          reader.readAsDataURL(file)
-        })
-      })
-      
-      const newImages = await Promise.all(imagePromises)
-      setImages((prevImages) => [...prevImages, ...newImages])
-    }
 
-    processFiles()
+    const newImages: ImageFile[] = []
+    let loadedCount = 0
+
+    for (const file of selectedFiles) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const preview = e.target?.result as string
+        newImages.push({
+          file,
+          preview,
+          name: file.name,
+          size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+          originalFormat: file.type.split("/")[1],
+        })
+        loadedCount++
+        // Only update state once all files are loaded
+        if (loadedCount === selectedFiles.length) {
+          setImages((prevImages) => [...prevImages, ...newImages])
+        }
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const convertImage = async (imageFile: ImageFile): Promise<Blob> => {
@@ -454,6 +451,98 @@ export default function ImageConverterPage() {
               </Button>
             </motion.div>
           )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-16"
+          >
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-slate-900 mb-3">Explore More Tools</h2>
+              <p className="text-slate-600 text-lg">Discover other powerful utilities to enhance your workflow</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "Background Remover",
+                  description: "Remove backgrounds from images instantly with AI precision",
+                  href: "/tools/background-remover",
+                  gradient: "from-purple-500 to-pink-500",
+                  icon: "✂️",
+                  badge: "Popular",
+                },
+                {
+                  title: "Image Compressor",
+                  description: "Reduce file size without losing quality",
+                  href: "/tools/image-compressor",
+                  gradient: "from-orange-500 to-red-500",
+                  icon: "📦",
+                  badge: "Fast",
+                },
+                {
+                  title: "QR Code Generator",
+                  description: "Create custom QR codes for URLs, text, and more",
+                  href: "/tools/qr-generator",
+                  gradient: "from-blue-500 to-cyan-500",
+                  icon: "📱",
+                  badge: "New",
+                },
+                {
+                  title: "Image Resizer",
+                  description: "Resize images to any dimensions with smart scaling",
+                  href: "/tools/image-resizer",
+                  gradient: "from-indigo-500 to-purple-500",
+                  icon: "📐",
+                },
+                {
+                  title: "Content Counter",
+                  description: "Analyze text length, word count, and readability metrics",
+                  href: "/tools/content-counter",
+                  gradient: "from-green-500 to-teal-500",
+                  icon: "📝",
+                },
+                {
+                  title: "Image Watermark",
+                  description: "Add text or logo watermarks to protect your images",
+                  href: "/tools/image-watermark",
+                  gradient: "from-rose-500 to-pink-500",
+                  icon: "🔒",
+                },
+              ].map((tool, index) => (
+                <Link key={tool.href} href={tool.href}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 + index * 0.08 }}
+                    whileHover={{ y: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+                    className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-2xl transition-all duration-300 group cursor-pointer h-full flex flex-col"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div
+                        className={`w-14 h-14 bg-gradient-to-r ${tool.gradient} rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300 shadow-md`}
+                      >
+                        {tool.icon}
+                      </div>
+                      {tool.badge && (
+                        <span className="text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700">
+                          {tool.badge}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {tool.title}
+                    </h3>
+                    <p className="text-slate-600 text-sm flex-grow">{tool.description}</p>
+                    <div className="mt-4 flex items-center text-blue-600 font-medium text-sm group-hover:translate-x-2 transition-transform duration-300">
+                      Explore →
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
