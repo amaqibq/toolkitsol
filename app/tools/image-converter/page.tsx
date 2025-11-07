@@ -52,23 +52,33 @@ export default function ImageConverterPage() {
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.isArray(files) ? files : files.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
-    const newImages: ImageFile[] = []
-
-    for (const file of selectedFiles) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const preview = e.target?.result as string
-        newImages.push({
-          file,
-          preview,
-          name: file.name,
-          size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-          originalFormat: file.type.split("/")[1],
+    
+    const fileArray = Array.from(selectedFiles)
+    
+    // Process all files and update state once
+    const processFiles = async () => {
+      const imagePromises = fileArray.map((file) => {
+        return new Promise<ImageFile>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            const preview = e.target?.result as string
+            resolve({
+              file,
+              preview,
+              name: file.name,
+              size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+              originalFormat: file.type.split("/")[1] || "unknown",
+            })
+          }
+          reader.readAsDataURL(file)
         })
-        setImages((prevImages) => [...prevImages, ...newImages])
-      }
-      reader.readAsDataURL(file)
+      })
+      
+      const newImages = await Promise.all(imagePromises)
+      setImages((prevImages) => [...prevImages, ...newImages])
     }
+
+    processFiles()
   }
 
   const convertImage = async (imageFile: ImageFile): Promise<Blob> => {
