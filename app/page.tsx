@@ -28,7 +28,6 @@ interface ConversionOptions {
 
 export default function ImageConverterPage() {
   const [images, setImages] = useState<ImageFile[]>([])
-  const [isUploading, setIsUploading] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [conversionOptions, setConversionOptions] = useState<ConversionOptions>({
@@ -50,25 +49,35 @@ export default function ImageConverterPage() {
     handleFileSelect(files)
   }
 
-  const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.isArray(files) ? files : files.target.files
+  const handleFileSelect = async (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.isArray(files) ? files : Array.from(files.target.files || [])
     if (!selectedFiles || selectedFiles.length === 0) return
+
     const newImages: ImageFile[] = []
 
-    for (const file of selectedFiles) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const preview = e.target?.result as string
-        newImages.push({
-          file,
-          preview,
-          name: file.name,
-          size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-          originalFormat: file.type.split("/")[1],
-        })
-        setImages((prevImages) => [...prevImages, ...newImages])
-      }
-      reader.readAsDataURL(file)
+    // Process all files first, then update state once
+    const processFiles = selectedFiles.map((file) => {
+      return new Promise<ImageFile>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const preview = e.target?.result as string
+          resolve({
+            file,
+            preview,
+            name: file.name,
+            size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+            originalFormat: file.type.split("/")[1] || "unknown",
+          })
+        }
+        reader.readAsDataURL(file)
+      })
+    })
+
+    try {
+      const processedImages = await Promise.all(processFiles)
+      setImages((prevImages) => [...prevImages, ...processedImages])
+    } catch (error) {
+      console.error("Error processing files:", error)
     }
   }
 
@@ -129,6 +138,7 @@ export default function ImageConverterPage() {
       setProgress(((i + 1) / images.length) * 100)
     }
 
+    // Single image - download directly
     if (convertedImages.length === 1) {
       const { blob, filename } = convertedImages[0]
       const url = URL.createObjectURL(blob)
@@ -140,15 +150,39 @@ export default function ImageConverterPage() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } else {
-      for (const { blob, filename } of convertedImages) {
-        const url = URL.createObjectURL(blob)
+      // Multiple images - create ZIP
+      try {
+        // Dynamic import for JSZip to avoid dependency issues
+        const JSZip = (await import('jszip')).default;
+        const zip = new JSZip()
+        
+        for (const { blob, filename } of convertedImages) {
+          zip.file(filename, blob)
+        }
+
+        const zipBlob = await zip.generateAsync({ type: "blob" })
+        const url = URL.createObjectURL(zipBlob)
         const link = document.createElement("a")
         link.href = url
-        link.download = filename
+        link.download = "toolkitsol.com.zip"
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
         URL.revokeObjectURL(url)
+      } catch (error) {
+        console.error('Error creating ZIP file:', error)
+        // Fallback: download images individually if ZIP fails
+        alert('ZIP creation failed. Downloading images individually...')
+        for (const { blob, filename } of convertedImages) {
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.href = url
+          link.download = filename
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+        }
       }
     }
 
@@ -379,7 +413,7 @@ export default function ImageConverterPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {images.map((image, index) => (
                     <div
-                      key={index}
+                      key={`${image.name}-${index}`}
                       className="relative group border border-slate-200 rounded-xl p-3 bg-white/60 backdrop-blur-sm hover:shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <div className="relative">
@@ -434,7 +468,12 @@ export default function ImageConverterPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-green-700">Conversion Complete!</h3>
-                  <p className="text-sm text-green-600">Your images have been converted and downloaded successfully.</p>
+                  <p className="text-sm text-green-600">
+                    {images.length === 1 
+                      ? "Your image has been converted and downloaded successfully."
+                      : `Your ${images.length} images have been converted and downloaded as toolkitsol.com.zip`
+                    }
+                  </p>
                 </div>
               </div>
               <Button
