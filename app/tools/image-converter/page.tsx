@@ -50,35 +50,44 @@ export default function ImageConverterPage() {
   }
 
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.isArray(files) ? files : files.target.files
+    const selectedFiles = Array.isArray(files) ? files : Array.from(files.target?.files || [])
     if (!selectedFiles || selectedFiles.length === 0) return
-    
-    const fileArray = Array.from(selectedFiles)
-    
-    // Process all files and update state once
-    const processFiles = async () => {
-      const imagePromises = fileArray.map((file) => {
-        return new Promise<ImageFile>((resolve) => {
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            const preview = e.target?.result as string
-            resolve({
-              file,
-              preview,
-              name: file.name,
-              size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-              originalFormat: file.type.split("/")[1] || "unknown",
-            })
-          }
-          reader.readAsDataURL(file)
-        })
+
+    const newImages: ImageFile[] = []
+    let processedCount = 0
+
+    const processFile = (file: File) => {
+      return new Promise<ImageFile>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const preview = e.target?.result as string
+          resolve({
+            file,
+            preview,
+            name: file.name,
+            size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+            originalFormat: file.type.split("/")[1] || "unknown",
+          })
+        }
+        reader.readAsDataURL(file)
       })
-      
-      const newImages = await Promise.all(imagePromises)
-      setImages((prevImages) => [...prevImages, ...newImages])
     }
 
-    processFiles()
+    // Process all files and update state once at the end
+    const processAllFiles = async () => {
+      for (const file of selectedFiles) {
+        const imageFile = await processFile(file)
+        newImages.push(imageFile)
+        processedCount++
+        
+        // Update state only when all files are processed
+        if (processedCount === selectedFiles.length) {
+          setImages((prevImages) => [...prevImages, ...newImages])
+        }
+      }
+    }
+
+    processAllFiles()
   }
 
   const convertImage = async (imageFile: ImageFile): Promise<Blob> => {
