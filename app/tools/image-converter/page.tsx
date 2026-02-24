@@ -39,10 +39,67 @@ export default function ImageConverterPage() {
   }
 
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.isArray(files) ? files : Array.from(files.target?.files || [])
-    if (selectedFiles.length > 0) {
-      addImages(selectedFiles)
+    const selectedFiles = Array.isArray(files) ? files : files.target.files
+    if (!selectedFiles || selectedFiles.length === 0) return
+    const newImages: ImageFile[] = []
+
+    for (const file of selectedFiles) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const preview = e.target?.result as string
+        newImages.push({
+          file,
+          preview,
+          name: file.name,
+          size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+          originalFormat: file.type.split("/")[1],
+        })
+        setImages((prevImages) => [...prevImages, ...newImages])
+      }
+      reader.readAsDataURL(file)
     }
+  }
+
+  const convertImage = async (imageFile: ImageFile): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")!
+      const img = new Image()
+      img.crossOrigin = "anonymous"
+
+      img.onload = () => {
+        canvas.width = img.width
+        canvas.height = img.height
+
+        const shouldApplyBackground = conversionOptions.format === "jpeg" || conversionOptions.useBackgroundColor
+        if (shouldApplyBackground) {
+          ctx.fillStyle = conversionOptions.backgroundColor || "#ffffff"
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
+        ctx.drawImage(img, 0, 0)
+
+        canvas.toBlob(
+          (blob) => {
+            resolve(blob!)
+          },
+          `image/${conversionOptions.format}`,
+          conversionOptions.quality / 100,
+        )
+      }
+
+      img.src = imageFile.preview
+    })
+  }
+
+  const handleFormatChange = (value: string) => {
+    const useBackground = value === "jpeg"
+    setConversionOptions({
+      ...conversionOptions,
+      format: value,
+      useBackgroundColor: useBackground,
+    })
   }
 
   const handleConvert = async () => {
