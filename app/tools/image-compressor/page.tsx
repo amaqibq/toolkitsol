@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Upload, ImageIcon, CheckCircle, X, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import JSZip from "jszip"
 
 interface ImageFile {
   file: File
@@ -27,6 +28,16 @@ export default function ImageCompressorPage() {
   const [isComplete, setIsComplete] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const getFileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
+
+  const readFileAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => resolve(e.target?.result as string)
+      reader.onerror = () => reject(new Error("Failed to read file"))
+      reader.readAsDataURL(file)
+    })
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
   }
@@ -37,26 +48,35 @@ export default function ImageCompressorPage() {
     handleFileSelect(files)
   }
 
-  const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.isArray(files) ? files : files.target?.files
-    if (!selectedFiles) return
+  const handleFileSelect = async (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.isArray(files) ? files : Array.from(files.target?.files ?? [])
+    const imageFiles = selectedFiles.filter((file) => file.type.startsWith("image/"))
+    if (imageFiles.length === 0) return
 
-    const newImages: ImageFile[] = []
+    setIsComplete(false)
+    setIsUploading(true)
 
-    for (const file of selectedFiles) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const preview = e.target?.result as string
-        newImages.push({
+    try {
+      const newImages = await Promise.all(
+        imageFiles.map(async (file) => ({
           file,
-          preview,
+          preview: await readFileAsDataUrl(file),
           name: file.name,
           size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
           originalSize: file.size,
-        })
-        setImages((prevImages) => [...prevImages, ...newImages])
+        })),
+      )
+
+      setImages((prevImages) => {
+        const existingKeys = new Set(prevImages.map((img) => getFileKey(img.file)))
+        const dedupedToAdd = newImages.filter((img) => !existingKeys.has(getFileKey(img.file)))
+        return [...prevImages, ...dedupedToAdd]
+      })
+    } finally {
+      setIsUploading(false)
+      if (!Array.isArray(files) && fileInputRef.current) {
+        fileInputRef.current.value = ""
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -100,16 +120,33 @@ export default function ImageCompressorPage() {
       setProgress(((i + 1) / images.length) * 100)
     }
 
-    compressedImages.forEach(({ blob, filename }) => {
-      const url = URL.createObjectURL(blob)
+    if (compressedImages.length >= 2) {
+      const zip = new JSZip()
+      compressedImages.forEach(({ blob, filename }) => {
+        zip.file(filename, blob)
+      })
+
+      const zipBlob = await zip.generateAsync({ type: "blob" })
+      const url = URL.createObjectURL(zipBlob)
       const link = document.createElement("a")
       link.href = url
-      link.download = filename
+      link.download = "toolkitsol.com.zip"
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    })
+    } else {
+      compressedImages.forEach(({ blob, filename }) => {
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      })
+    }
 
     setIsCompressing(false)
     setIsComplete(true)
@@ -126,7 +163,7 @@ export default function ImageCompressorPage() {
 
   const removeImage = (indexToRemove: number) => {
     if (window.confirm("Are you sure you want to remove this image?")) {
-      setImages(images.filter((_, index) => index !== indexToRemove))
+      setImages((prev) => prev.filter((_, index) => index !== indexToRemove))
     }
   }
 
@@ -247,10 +284,10 @@ export default function ImageCompressorPage() {
                 <div className="flex space-x-4">
                   <Button
                     onClick={handleCompress}
-                    disabled={isCompressing}
+                    disabled={isCompressing || isUploading}
                     className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                   >
-                    {isCompressing ? "Compressing..." : "Start Compression"}
+                    {isUploading ? "Loading images..." : isCompressing ? "Compressing..." : "Start Compression"}
                   </Button>
                   <Button
                     variant="outline"
