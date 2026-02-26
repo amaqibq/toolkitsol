@@ -87,7 +87,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="#terms" className="text-slate-300 hover:text-blue-400 transition-colors duration-200">
-                  Terms
+                  Terms & Conditions
                 </Link>
               </li>
             </ul>
