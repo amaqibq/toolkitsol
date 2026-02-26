@@ -45,12 +45,12 @@ export default function Header() {
           >
             Content Counter
           </Link>
-          <Link
+          {/* <Link
             href="/tools/background-remover"
             className="text-slate-600 hover:text-blue-600 transition-colors"
           >
             Background Remover
-          </Link>
+          </Link> */}
         </nav>
 
         {/* Mobile Menu Button */}

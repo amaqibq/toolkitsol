@@ -51,14 +51,14 @@ export default function Footer() {
                   Content Counter
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href="/tools/background-remover"
                   className="text-slate-300 hover:text-blue-400 transition-colors duration-200"
                 >
                   Background Remover
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -95,7 +95,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-slate-700 mt-12 pt-8 text-center">
-          <p className="text-slate-400">© 2025 ToolKit. All rights reserved.</p>
+          <p className="text-slate-400"> © {new Date().getFullYear()} ToolKit. All rights reserved.</p>
         </div>
       </div>
     </footer>
