@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
@@ -9,7 +10,10 @@ import Footer from "@/components/Footer"
 import Script from "next/script"
 import { buildWebsiteJsonLd } from "@/lib/seo"
 
-export const metadata: Metadata = {
+const BASE_URL = "https://www.toolkitsol.com"
+
+/** Base metadata for all pages. Child segments (e.g. blog) merge and override as needed. */
+const baseMetadata: Metadata = {
   title: "Free Image Converter, Compressor & QR Code Generator | ToolKitSol",
   description:
     "ToolKitSol offers free online tools including PNG to JPG converter, JPG to WEBP converter, image compressor, image resizer, background remover, QR code generator and word counter. 100% free and unlimited tools with no signup required.",
@@ -26,9 +30,9 @@ export const metadata: Metadata = {
     "online image tools",
     "free web tools",
     "convert png to jpg",
-    "compress image without losing quality"
+    "compress image without losing quality",
   ],
-  metadataBase: new URL("https://www.toolkitsol.com"),
+  metadataBase: new URL(BASE_URL),
   robots: {
     index: true,
     follow: true,
@@ -52,7 +56,7 @@ export const metadata: Metadata = {
     title: "Free Image Converter & Compressor Online | ToolKitSol",
     description:
       "Convert PNG to JPG, compress images, resize photos, remove backgrounds, generate QR codes and count words online for free. Unlimited usage with fast and secure processing.",
-    url: "https://www.toolkitsol.com",
+    url: BASE_URL,
     siteName: "ToolKitSol",
     images: [
       {
@@ -72,7 +76,23 @@ export const metadata: Metadata = {
       "PNG to JPG converter, image compressor, background remover, QR code generator & more. 100% free and unlimited online tools.",
     images: ["/logo.png"],
   },
-};
+}
+
+/**
+ * Central SEO: dynamic canonical from current pathname (set by middleware).
+ * Blog and other segments override via their own generateMetadata; no duplicate tags.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = await headers()
+  const pathname = headersList.get("x-pathname") ?? "/"
+  const canonical = pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname
+  return {
+    ...baseMetadata,
+    alternates: {
+      canonical,
+    },
+  }
+}
 
 
 export default function RootLayout({

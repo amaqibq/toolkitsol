@@ -1,7 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "ToolKitSol Blog – Tips, Guides & Updates",
+  description: "Read tutorials, tips and product updates from ToolKitSol about image tools, productivity and web workflows.",
+  alternates: {
+    canonical: "/blog",
+  },
+};
 
 type Post = {
 	slug: string;
