@@ -10,6 +10,7 @@ import { Upload, ImageIcon, CheckCircle, X, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import JSZip from "jszip"
+import { buildToolJsonLd } from "@/lib/seo"
 
 interface ImageFile {
   file: File
@@ -169,6 +170,10 @@ export default function ImageCompressorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-red-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildToolJsonLd("image-compressor")) }}
+      />
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <motion.div

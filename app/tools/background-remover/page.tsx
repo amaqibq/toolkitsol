@@ -7,6 +7,7 @@ import { Upload, Loader2, Download, ImageIcon, Sparkles, ArrowRight, Plus } from
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import Link from "next/link"
+import { buildToolJsonLd } from "@/lib/seo"
 
 interface ProcessedImage {
   original: string
@@ -175,6 +176,10 @@ export default function BackgroundRemover() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildToolJsonLd("background-remover")) }}
+      />
       {/* Error Message */}
       <AnimatePresence>
         {error && (

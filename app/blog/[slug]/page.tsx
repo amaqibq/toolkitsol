@@ -4,7 +4,9 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { Calendar, User, ArrowLeft, Clock, Tag } from "lucide-react";
+import { buildBlogPostingJsonLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +104,12 @@ export default async function BlogPostPage({
 
   return (
     <article className="min-h-screen bg-background text-foreground">
+      <Script
+        id={`ld-blog-${post.slug}`}
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBlogPostingJsonLd(post)) }}
+      />
       {/* --- Hero Section --- */}
       <section className="relative w-full h-[280px] md:h-[400px] bg-gradient-to-br from-slate-900 to-slate-700">
         {post.coverImage && (

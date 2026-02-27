@@ -7,32 +7,59 @@ import "./globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import Script from "next/script"
+import { buildWebsiteJsonLd } from "@/lib/seo"
 
 export const metadata: Metadata = {
-  title: "ToolKit - Essential Tools for Digital Creators",
+  title: "Free Image Converter, Compressor & QR Code Generator | ToolKitSol",
   description:
-    "Convert images, generate QR codes, count content, and remove backgrounds with our powerful suite of digital tools.",
-  generator: "v0.app",
-  keywords:
-    "image converter, QR code generator, content counter, background remover, digital tools",
+    "ToolKitSol offers free online tools including PNG to JPG converter, JPG to WEBP converter, image compressor, image resizer, background remover, QR code generator and word counter. 100% free and unlimited tools with no signup required.",
+  keywords: [
+    "free image converter",
+    "png to jpg converter",
+    "jpg to webp converter",
+    "image compressor online",
+    "reduce image size",
+    "image resizer online",
+    "background remover online free",
+    "free qr code generator",
+    "word counter online",
+    "online image tools",
+    "free web tools",
+    "convert png to jpg",
+    "compress image without losing quality"
+  ],
   metadataBase: new URL("https://www.toolkitsol.com"),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  authors: [{ name: "ToolKitSol Team" }],
+  creator: "ToolKitSol",
+  publisher: "ToolKitSol",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/icon.png",
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "ToolKitsol - Essential Tools for Digital Creators",
+    title: "Free Image Converter & Compressor Online | ToolKitSol",
     description:
-      "Convert images, generate QR codes, count content, and remove backgrounds easily with ToolKit’s all-in-one suite.",
+      "Convert PNG to JPG, compress images, resize photos, remove backgrounds, generate QR codes and count words online for free. Unlimited usage with fast and secure processing.",
     url: "https://www.toolkitsol.com",
     siteName: "ToolKitSol",
     images: [
       {
-        url: "/logo.png", // ✅ your logo file from /public
-        width: 800,
-        height: 600,
-        alt: "ToolKitSol Logo",
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "ToolKitSol - Free Online Image & Web Tools",
       },
     ],
     locale: "en_US",
@@ -40,10 +67,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ToolKit - Essential Tools for Digital Creators",
+    title: "Free Image Converter & Online Tools | ToolKitSol",
     description:
-      "Your go-to digital toolkit for quick conversions, QR generation, and more.",
-    images: ["/logo.png"], // ✅ uses same logo
+      "PNG to JPG converter, image compressor, background remover, QR code generator & more. 100% free and unlimited online tools.",
+    images: ["/logo.png"],
   },
 };
 
@@ -81,6 +108,13 @@ export default function RootLayout({
             gtag('js', new Date());
             gtag('config', 'G-HPE465JWH6');`}
         </Script>
+
+        {/* ✅ Structured Data: Website */}
+        <script
+          type="application/ld+json"
+          // JSON-LD must be a string literal in the DOM
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebsiteJsonLd()) }}
+        />
       </head>
 
       <body className="flex flex-col min-h-screen">

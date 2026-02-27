@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Upload, ImageIcon, CheckCircle, X, Sparkles, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { buildToolJsonLd } from "@/lib/seo"
 
 declare global {
   interface Window {
@@ -261,6 +262,10 @@ export default function ImageResizerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildToolJsonLd("image-resizer")) }}
+      />
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <motion.div

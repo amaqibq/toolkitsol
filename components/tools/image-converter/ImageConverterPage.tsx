@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Upload, ImageIcon, CheckCircle, X, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { buildToolJsonLd } from "@/lib/seo"
 
 interface ImageFile {
   file: File
@@ -231,6 +232,10 @@ export default function ImageConverterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildToolJsonLd("image-converter")) }}
+      />
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <motion.div
