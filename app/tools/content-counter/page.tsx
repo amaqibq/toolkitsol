@@ -406,7 +406,7 @@ export default function ContentCounterPage() {
             <p className="text-slate-600">Discover other powerful utilities to enhance your workflow</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 title: "QR Generator",
@@ -421,6 +421,13 @@ export default function ContentCounterPage() {
                 href: "/tools/image-converter",
                 gradient: "from-blue-500 to-cyan-500",
                 icon: "🔄",
+              },
+              {
+                title: "Free URL Shortener",
+                description: "Create short links instantly",
+                href: "/tools/free-url-shortener",
+                gradient: "from-amber-500 to-orange-500",
+                icon: "🔗",
               },
               {
                 title: "Background Remover",

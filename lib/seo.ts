@@ -8,6 +8,7 @@ export type ToolSlug =
   | "background-remover"
   | "qr-generator"
   | "content-counter"
+  | "free-url-shortener"
 
 interface ToolSeoConfig {
   slug: ToolSlug
@@ -116,6 +117,21 @@ export const TOOL_SEO_CONFIG: Record<ToolSlug, ToolSeoConfig> = {
       "text length checker",
       "content analyzer",
       "seo content word count",
+    ],
+  },
+  "free-url-shortener": {
+    slug: "free-url-shortener",
+    path: "/tools/free-url-shortener",
+    title: "Free URL Shortener Tool – Create Short Links Instantly | ToolKitSol",
+    description:
+      "Create short links instantly. Paste a long URL, get a secure short link. No signup required. Copy and share your shortened URLs in seconds.",
+    keywords: [
+      "free url shortener",
+      "short link generator",
+      "create short url",
+      "url shortener online",
+      "shorten link",
+      "free link shortener",
     ],
   },
 }

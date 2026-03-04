@@ -389,7 +389,7 @@ export default function QRGeneratorPage() {
             <p className="text-slate-600">Discover other powerful utilities to enhance your workflow</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 title: "Image Converter",
@@ -404,6 +404,13 @@ export default function QRGeneratorPage() {
                 href: "/tools/content-counter",
                 gradient: "from-green-500 to-teal-500",
                 icon: "📝",
+              },
+              {
+                title: "Free URL Shortener",
+                description: "Create short links instantly",
+                href: "/tools/free-url-shortener",
+                gradient: "from-amber-500 to-orange-500",
+                icon: "🔗",
               },
               {
                 title: "Background Remover",

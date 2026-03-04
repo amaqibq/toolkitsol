@@ -45,6 +45,12 @@ export default function Header() {
           >
             Content Counter
           </Link>
+          <Link
+            href="/tools/free-url-shortener"
+            className="text-slate-600 hover:text-blue-600 transition-colors"
+          >
+            URL Shortener
+          </Link>
           {/* <Link
             href="/tools/background-remover"
             className="text-slate-600 hover:text-blue-600 transition-colors"
@@ -86,6 +92,13 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
             >
               Content Counter
+            </Link>
+            <Link
+              href="/tools/free-url-shortener"
+              className="text-slate-600 hover:text-blue-600 transition-colors"
+              onClick={() => setMenuOpen(false)}
+            >
+              URL Shortener
             </Link>
             <Link
               href="/tools/background-remover"

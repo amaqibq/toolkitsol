@@ -154,19 +154,18 @@ export default function ImageResizerPage() {
 
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.isArray(files) ? files : Array.from(files.target.files || [])
-    const newImages: ImageFile[] = []
 
     for (const file of selectedFiles) {
       const reader = new FileReader()
       reader.onload = (e) => {
         const preview = e.target?.result as string
-        newImages.push({
+        const newImage: ImageFile = {
           file,
           preview,
           name: file.name,
           size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        })
-        setImages((prevImages) => [...prevImages, ...newImages])
+        }
+        setImages((prevImages) => [...prevImages, newImage])
       }
       reader.readAsDataURL(file)
     }

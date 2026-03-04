@@ -389,6 +389,13 @@ export default function BackgroundRemover() {
                             gradient: "from-purple-500 to-pink-500",
                             icon: "📱",
                           },
+                          {
+                            title: "Free URL Shortener",
+                            description: "Create short links instantly",
+                            href: "/tools/free-url-shortener",
+                            gradient: "from-amber-500 to-orange-500",
+                            icon: "🔗",
+                          },
                         ].map((tool, index) => (
                           <Link key={tool.href} href={tool.href}>
                             <motion.div

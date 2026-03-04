@@ -8,7 +8,7 @@ import "./globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import Script from "next/script"
-import { buildWebsiteJsonLd } from "@/lib/seo"
+import { buildWebsiteJsonLd, getToolSeo } from "@/lib/seo"
 
 const BASE_URL = "https://www.toolkitsol.com"
 
@@ -80,12 +80,35 @@ const baseMetadata: Metadata = {
 
 /**
  * Central SEO: dynamic canonical from current pathname (set by middleware).
- * Blog and other segments override via their own generateMetadata; no duplicate tags.
+ * Route-specific overrides (e.g. free-url-shortener) applied here.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers()
   const pathname = headersList.get("x-pathname") ?? "/"
   const canonical = pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname
+
+  if (pathname === "/tools/free-url-shortener") {
+    const tool = getToolSeo("free-url-shortener")
+    return {
+      ...baseMetadata,
+      title: "Free URL Shortener Tool – Create Short Links Instantly",
+      description: tool.description,
+      keywords: tool.keywords,
+      alternates: { canonical: "/tools/free-url-shortener" },
+      openGraph: {
+        ...baseMetadata.openGraph,
+        title: "Free URL Shortener Tool – Create Short Links Instantly",
+        description: tool.description,
+        url: `${BASE_URL}/tools/free-url-shortener`,
+      },
+      twitter: {
+        ...baseMetadata.twitter,
+        title: "Free URL Shortener Tool – Create Short Links Instantly",
+        description: tool.description,
+      },
+    }
+  }
+
   return {
     ...baseMetadata,
     alternates: {

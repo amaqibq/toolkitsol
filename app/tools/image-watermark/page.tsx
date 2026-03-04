@@ -31,7 +31,7 @@ export default function ImageWatermarkPage() {
   const [isApplying, setIsApplying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [watermarkOptions, setWatermarkOptions] = useState<WatermarkOptions>({
-    text: "© 2025",
+    text: "© 2026",
     fontSize: 40,
     opacity: 0.7,
     position: "bottom-right",
@@ -51,21 +51,20 @@ export default function ImageWatermarkPage() {
   }
 
   const handleFileSelect = (files: File[] | React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.isArray(files) ? files : files.target.files
-    if (!selectedFiles || selectedFiles.length === 0) return
-    const newImages: ImageFile[] = []
+    const selectedFiles = Array.isArray(files) ? files : Array.from(files.target.files || [])
+    if (selectedFiles.length === 0) return
 
     for (const file of selectedFiles) {
       const reader = new FileReader()
       reader.onload = (e) => {
         const preview = e.target?.result as string
-        newImages.push({
+        const newImage: ImageFile = {
           file,
           preview,
           name: file.name,
           size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        })
-        setImages((prevImages) => [...prevImages, ...newImages])
+        }
+        setImages((prevImages) => [...prevImages, newImage])
       }
       reader.readAsDataURL(file)
     }
